@@ -1,10 +1,4 @@
-import { utils } from '@pixi/core';
-import { AlphaFilter } from '@pixi/filter-alpha';
-import { BlurFilter, BlurFilterPass } from '@pixi/filter-blur';
-import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
-import { DisplacementFilter } from '@pixi/filter-displacement';
-import { FXAAFilter } from '@pixi/filter-fxaa';
-import { NoiseFilter } from '@pixi/filter-noise';
+import { deprecation, AlphaFilter, BlurFilter, BlurFilterPass, ColorMatrixFilter, DisplacementFilter, NoiseFilter } from 'pixi.js';
 
 /** @deprecated */
 const filters = {
@@ -19,8 +13,6 @@ const filters = {
     /** @deprecated */
     DisplacementFilter,
     /** @deprecated */
-    FXAAFilter,
-    /** @deprecated */
     NoiseFilter,
 };
 
@@ -30,7 +22,7 @@ Object.entries(filters).forEach(([key, FilterClass]) =>
         get()
         {
             // #if _DEBUG
-            utils.deprecation('7.1.0', `filters.${key} has moved to ${key}`);
+            deprecation('8.0.0', `filters.${key} has moved to ${key}`);
             // #endif
 
             return FilterClass;

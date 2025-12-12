@@ -2,13 +2,11 @@ import canvasModule from 'canvas';
 import { fetch, Request, Response } from 'cross-fetch';
 import fs from 'fs';
 import { WebGLRenderingContext } from 'gl';
-import { settings, utils } from '@pixi/core';
-import { NodeCanvasElement } from './NodeCanvasElement';
 import { DOMParser } from '@xmldom/xmldom';
+import { path, Adapter } from 'pixi.js';
+import { NodeCanvasElement } from './NodeCanvasElement';
 
-import type { IAdapter } from '@pixi/core';
-
-export const NodeAdapter = {
+export const NodeAdapter: Adapter = {
     /**
      * Creates a canvas element of the given size.
      * This canvas is created using the node-canvas package and uses the gl package to create a webgl context.
@@ -16,11 +14,22 @@ export const NodeAdapter = {
      * @param height - height of the canvas
      */
     createCanvas: (width?: number, height?: number) => new NodeCanvasElement(width, height),
-    getCanvasRenderingContext2D: () => canvasModule.CanvasRenderingContext2D,
+    createImage: () =>
+    {
+        const img = new canvasModule.Image() as any;
+
+        img.crossOrigin = null;
+        img.currentSrc = '';
+        img.decode = async () => {};
+        img.remove = () => {};
+
+        return img;
+    },
+    getCanvasRenderingContext2D: () => ({ prototype: canvasModule.CanvasRenderingContext2D.prototype } as any),
     /** Returns a WebGL rendering context using the gl package. */
     getWebGLRenderingContext: () => WebGLRenderingContext,
-    /** Returns the fake user agent string of `node` */
-    getNavigator: () => ({ userAgent: 'node' }),
+    /** Returns the fake navigator object of `node` */
+    getNavigator: () => ({ userAgent: 'node', gpu: null }),
     /** Returns the path from which the process is being run */
     getBaseUrl: () => process.cwd(),
     getFontFaceSet: (): any => null,
@@ -28,25 +37,22 @@ export const NodeAdapter = {
     {
         const request = new Request(url, options);
 
-        // Check if urls starts with http(s) as only these are supported by node-fetch
-        if (utils.path.isUrl(request.url))
+        // Check if url starts with http(s) as only these are supported by node-fetch
+        if (path.isUrl(request.url))
         {
             return fetch(url, request);
         }
 
         return new Promise((resolve, reject) =>
         {
-            // Request transforms paths and encodeURIs, but for filesystem requests,
-            // it's better to use the raw string (path).
-            // If url is a request instead, decode the URI before trying to access the file
             const rawPath = typeof url === 'string' ? url : decodeURI(request.url);
 
             // Normalize the path
-            const filePath = utils.path.normalize(rawPath);
+            const filePath = path.normalize(rawPath);
 
             if (!fs.existsSync(filePath))
             {
-                reject(`File not found: ${filePath}`);
+                reject(new Error(`File not found: ${filePath}`));
             }
             const readStream = fs.createReadStream(filePath);
 
@@ -68,8 +74,4 @@ export const NodeAdapter = {
 
         return parser.parseFromString(xml, 'text/xml');
     },
-} as unknown as IAdapter;
-
-settings.ADAPTER = NodeAdapter;
-
-export { settings };
+};

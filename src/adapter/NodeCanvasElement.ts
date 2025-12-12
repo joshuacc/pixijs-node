@@ -1,6 +1,7 @@
 import canvasModule from 'canvas';
 import createGLContext from 'gl';
-import { ICanvasRenderingContext2D, utils } from '@pixi/core';
+import { EventEmitter } from 'pixi.js';
+import type { ICanvasRenderingContext2D, ContextIds, ContextSettings, ICanvas, ICanvasRenderingContext2DSettings } from 'pixi.js';
 
 import type {
     CanvasRenderingContext2D, JpegConfig, NodeCanvasRenderingContext2DSettings, PdfConfig, PngConfig,
@@ -9,7 +10,6 @@ import type {
     STACKGL_resize_drawingbuffer, // eslint-disable-line camelcase
     StackGLExtension,
 } from 'gl';
-import type { ContextIds, ContextSettings, ICanvas, ICanvasRenderingContext2DSettings } from '@pixi/core';
 
 const { Canvas, Image, createImageData } = canvasModule;
 
@@ -28,7 +28,7 @@ export class NodeCanvasElement implements ICanvas
     public style: Record<string, any>;
 
     private _canvas: canvasModule.Canvas;
-    private _event: utils.EventEmitter;
+    private _event: EventEmitter;
     private _contextType?: ContextIds;
     private _ctx?: CanvasRenderingContext2D;
     private _gl?: WebGLRenderingContext & StackGLExtension;
@@ -39,7 +39,7 @@ export class NodeCanvasElement implements ICanvas
     constructor(width = 1, height = 1, type?: 'image' | 'pdf' | 'svg')
     {
         this._canvas = new Canvas(width, height, type);
-        this._event = new utils.EventEmitter();
+        this._event = new EventEmitter();
         this.style = {};
     }
 
@@ -90,6 +90,10 @@ export class NodeCanvasElement implements ICanvas
     getContext(
         contextId: 'webgl2' | 'experimental-webgl2',
         options?: WebGLContextAttributes | NodeCanvasRenderingContext2DSettings,
+    ): null;
+    getContext(
+        contextId: 'webgpu',
+        options?: ContextSettings | NodeCanvasRenderingContext2DSettings,
     ): null;
     getContext(
         type: ContextIds,
@@ -232,6 +236,16 @@ export class NodeCanvasElement implements ICanvas
         event.target = this;
 
         return this._event.emit(event.type, event);
+    }
+
+    getBoundingClientRect()
+    {
+        return {
+            x: 0,
+            y: 0,
+            width: this.width,
+            height: this.height,
+        };
     }
 
     /** Read canvas pixels as Uint8Array. */

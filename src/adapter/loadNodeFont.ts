@@ -1,8 +1,7 @@
 import canvasModule from 'canvas';
-import { getFontFamilyName } from '@pixi/assets';
-import { extensions, ExtensionType, utils } from '@pixi/core';
+import { getFontFamilyName, LoaderParserPriority, extensions, ExtensionType, path } from 'pixi.js';
 
-import type { LoaderParser, LoadFontData, ResolvedAsset } from '@pixi/assets';
+import type { LoaderParser, LoadFontData, ResolvedAsset } from 'pixi.js';
 
 const { registerFont } = canvasModule;
 const validWeights = [
@@ -12,11 +11,15 @@ const validFonts = ['.woff', '.woff2', '.ttf', '.otf'];
 
 /** loads a font from a file */
 export const loadNodeFont = {
-    extension: ExtensionType.LoadParser,
+    extension: {
+        type: ExtensionType.LoadParser,
+        priority: LoaderParserPriority.High,
+    },
+    id: 'node-font',
 
     test(url: string): boolean
     {
-        return validFonts.includes(utils.path.extname(url).toLowerCase());
+        return validFonts.includes(path.extname(url).toLowerCase());
     },
 
     async load(url: string, options: ResolvedAsset<LoadFontData>): Promise<void>
