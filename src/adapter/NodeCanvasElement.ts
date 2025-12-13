@@ -398,7 +398,7 @@ export class NodeCanvasElement implements ICanvas
 
                 canvas.getContext('2d').drawImage(source, 0, 0);
 
-                return source;
+                return canvas;
             }
 
             return source;

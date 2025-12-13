@@ -1,4 +1,21 @@
-import { ResizePlugin, detectMp4, detectOgv, detectWebm, loadTextures, loadWebFont, extensions, DOMAdapter } from 'pixi.js';
+import {
+    ResizePlugin,
+    detectMp4,
+    detectOgv,
+    detectWebm,
+    loadTextures,
+    loadWebFont,
+    extensions,
+    DOMAdapter,
+    GraphicsPipe,
+    GraphicsContextSystem,
+    GlGraphicsAdaptor,
+    TilingSpritePipe,
+    MeshPipe,
+    GlMeshAdaptor,
+    FilterPipe,
+    FilterSystem,
+} from 'pixi.js';
 import { NodeAdapter } from './adapter/adapter';
 import { nodeEnvironment } from './adapter/nodeEnvironment';
 
@@ -7,12 +24,24 @@ DOMAdapter.set(NodeAdapter);
 // Register Node environment extension (higher priority than browser)
 extensions.add(nodeEnvironment);
 
+// Ensure graphics render pipe is registered in node (not guaranteed by default bundle)
+extensions.add(
+    GraphicsPipe,
+    GraphicsContextSystem,
+    GlGraphicsAdaptor,
+    TilingSpritePipe,
+    MeshPipe,
+    GlMeshAdaptor,
+    FilterPipe,
+    FilterSystem
+);
+
 // Remove browser-only loaders/detections that rely on DOM/video/font APIs
 extensions.remove(
     detectMp4,
     detectOgv,
     detectWebm,
-    loadTextures,
+    // Keep loadTextures so Assets can decode PNGs in node via NodeAdapter image
     loadWebFont,
     ResizePlugin
 );

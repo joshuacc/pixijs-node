@@ -9,7 +9,7 @@ export const nodeEnvironment = {
     extension: {
         type: ExtensionType.Environment,
         name: 'node',
-        priority: -2,
+        priority: 10,
     },
     test: () => typeof window === 'undefined' || typeof document === 'undefined',
     load: async () =>
