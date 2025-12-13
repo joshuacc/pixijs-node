@@ -15,6 +15,10 @@ import {
     GlMeshAdaptor,
     FilterPipe,
     FilterSystem,
+    CanvasTextPipe,
+    BitmapTextPipe,
+    HTMLTextPipe,
+    CanvasTextSystem,
 } from 'pixi.js';
 import { NodeAdapter } from './adapter/adapter';
 import { nodeEnvironment } from './adapter/nodeEnvironment';
@@ -33,7 +37,12 @@ extensions.add(
     MeshPipe,
     GlMeshAdaptor,
     FilterPipe,
-    FilterSystem
+    FilterSystem,
+    CanvasTextSystem,
+    // Text pipes are required for label rendering in headless exports.
+    CanvasTextPipe,
+    BitmapTextPipe,
+    HTMLTextPipe
 );
 
 // Remove browser-only loaders/detections that rely on DOM/video/font APIs
