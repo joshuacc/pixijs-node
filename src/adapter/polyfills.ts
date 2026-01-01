@@ -1,4 +1,5 @@
 import canvasModule from 'canvas';
+import { WebGLRenderingContext as HeadlessWebGLRenderingContext } from 'gl';
 
 globalThis.requestAnimationFrame = function requestAnimationFrame(fn)
 {
@@ -29,4 +30,15 @@ if (!(globalThis as any).HTMLCanvasElement)
 if (!(globalThis as any).navigator)
 {
     (globalThis as any).navigator = { userAgent: 'node', gpu: null };
+}
+
+if (!(globalThis as any).WebGLRenderingContext)
+{
+    (globalThis as any).WebGLRenderingContext = HeadlessWebGLRenderingContext;
+}
+
+if (!(globalThis as any).WebGL2RenderingContext)
+{
+    // headless-gl exports a single WebGLRenderingContext class; reuse for feature detection.
+    (globalThis as any).WebGL2RenderingContext = HeadlessWebGLRenderingContext;
 }

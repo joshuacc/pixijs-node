@@ -100,7 +100,9 @@ export class NodeCanvasElement implements ICanvas
         options?: ContextSettings | NodeCanvasRenderingContext2DSettings,
     ): ICanvasRenderingContext2D | WebGLRenderingContext | null
     {
-        switch (type)
+        const contextType = type as string;
+
+        switch (contextType)
         {
             case '2d':
             {
@@ -118,6 +120,8 @@ export class NodeCanvasElement implements ICanvas
             }
             case 'webgl':
             case 'experimental-webgl':
+            case 'webgl2':
+            case 'experimental-webgl2':
             {
                 if (this._contextType && this._contextType !== 'webgl') return null;
                 if (this._gl) return this._gl;
@@ -125,7 +129,13 @@ export class NodeCanvasElement implements ICanvas
                 const { width, height } = this;
 
                 const ctx = this._canvas.getContext('2d', options as NodeCanvasRenderingContext2DSettings);
-                const gl = createGLContext(width, height, options as WebGLContextAttributes);
+                const gl = createGLContext(width, height, {
+                    ...(options as WebGLContextAttributes),
+                    ...(contextType === 'webgl2' || contextType === 'experimental-webgl2'
+                        ? { createWebGL2Context: true }
+                        : null),
+                } as WebGLContextAttributes & { createWebGL2Context?: true });
+                if (!gl) return null;
 
                 this._patchGLContext(gl);
 
